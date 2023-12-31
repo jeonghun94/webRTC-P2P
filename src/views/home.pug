@@ -1,0 +1,22 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Noom
+        link(rel="stylesheet", href="https://unpkg.com/mvp.css")
+    body
+
+        main
+            div#welcome
+                form    
+                    //- input(placeholder="room name", required, type="text" value='123')
+                    button Teacher room
+
+            div#student 
+                form
+                    //- input(placeholder="message", required, type="text" value='123')
+                    button Student Send        
+        script(src="/socket.io/socket.io.js") 
+        script(src="/public/js/app.js") 
