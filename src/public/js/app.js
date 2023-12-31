@@ -50,7 +50,6 @@ function handleWelcomeSubmit(event) {
 }
 
 function createPeerConnection(id, remoteUserId, localUserId) {
-  console.log("createPeerConnection", id, remoteUserId, localUserId);
   try {
     const pc = new RTCPeerConnection({
       iceServers: [
@@ -98,6 +97,7 @@ function createPeerConnection(id, remoteUserId, localUserId) {
 }
 
 function sendMessageAll(message) {
+  console.log("peerChannels", peerChannels);
   for (const [key, channel] of Object.entries(peerChannels)) {
     console.log("sendMessageAll", key, channel);
     try {
@@ -128,8 +128,6 @@ socket.on("all_users", (users) => {
 
     const channel = pc.createDataChannel("chat");
 
-    console.log("channel", channel);
-
     channel.onopen = () => {
       console.log("channel onopen");
     };
@@ -152,8 +150,6 @@ socket.on("all_users", (users) => {
 
     const offer = await pc.createOffer({ iceRestart: true });
     await pc.setLocalDescription(offer);
-    console.log("offer", offer);
-    console.log("pc.localDescription", pc.localDescription);
 
     socket.emit("offer", {
       sdp: pc.localDescription,
@@ -167,7 +163,6 @@ socket.on("all_users", (users) => {
 
 // Peer B's code
 socket.on("getOffer", async (offer) => {
-  console.log("getOffer", offer);
   const { sdp, offerSendID, offerSendUserId, offerUserType } = offer;
   const pc = createPeerConnection(offerSendID, offerSendUserId, userId);
   if (!(pc && socket && socket.connected)) return;
@@ -175,13 +170,9 @@ socket.on("getOffer", async (offer) => {
   peerConnections[offerSendUserId] = pc;
   await pc.setRemoteDescription(sdp);
 
-  console.log("pc.remoteDescription", pc.remoteDescription);
-
   //다른 브라우저에게 응답을 보내는 부분ㄴ
   const answer = await pc.createAnswer();
   await pc.setLocalDescription(answer);
-
-  console.log("answer", answer);
 
   socket.emit("answer", {
     sdp: pc.localDescription,
