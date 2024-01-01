@@ -101,7 +101,7 @@ const sendMessageAll = (message) => {
   for (const [key, channel] of Object.entries(peerChannels)) {
     console.log(
       `${
-        userType === "teacher" ? "선생" : "학생"
+        userType === "teacher" ? "학생" : "선생님"
       }(${key})에게 메시지 ${message}를 보냅니다.`
     );
 
