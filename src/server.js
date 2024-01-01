@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("offer", (data) => {
-    console.log("socket on offer", data.sdp);
+    // console.log("socket on offer", data.sdp);
     const { sdp, offerSendID, offerSendUserId, offerUserType, offerReceiveID } =
       data;
 
@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("answer", (data) => {
-    console.log("socket on answer", data.sdp);
+    // console.log("socket on answer", data.sdp);
     const { sdp, answerSendID, answerSendUserId, answerReceiveID } = data;
     socket
       .to(answerReceiveID)
@@ -73,7 +73,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("candidate", (data) => {
-    console.log("socket on candidate", data);
+    // console.log("socket on candidate", data);
     const {
       candidate,
       candidateSendID,
@@ -111,12 +111,11 @@ io.on("connection", (socket) => {
     console.log("remain users", users);
   });
 
+  // 해야할 듯?
   socket.on("clear", () => {
     console.log("clear", socket.id);
-
     const roomID = socketToRoom[socket.id];
     let room = users[roomID];
-
     console.log("room", room);
   });
 });
