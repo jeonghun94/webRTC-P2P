@@ -39,6 +39,7 @@ function handleStudentSubmit(event) {
   resetConnections();
   userId = "student" + Math.floor(Math.random() * 1000000);
   userType = "student";
+  student.hidden = true;
   socket.emit("join_room", { roomName, userId, userType });
 }
 
@@ -47,6 +48,7 @@ function handleWelcomeSubmit(event) {
   resetConnections();
   userId = "teacher" + Math.floor(Math.random() * 1000000);
   userType = "teacher";
+  welcome.hidden = true;
   socket.emit("join_room", { roomName, userId, userType });
 }
 
@@ -114,11 +116,19 @@ const sendMessageAll = (message) => {
 };
 
 const sendMessage = (message, user) => {
-  const channel = peerChannels[user.userId];
+  const channel = user
+    ? peerChannels[user.userId]
+    : peerChannels[userList[0].userId];
   if (!channel) {
     console.error("not found channer", user);
     return;
   }
+
+  console.log(
+    user
+      ? `선생님이 학생(${user.userId})에게 메시지 ${message}를 보냅니다.`
+      : `선생님이 학생(${userList[0].userId})에게 메시지 ${message}를 보냅니다.`
+  );
   channel.send(JSON.stringify(message));
 };
 

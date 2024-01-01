@@ -18,5 +18,8 @@ html(lang="en")
                 form
                     //- input(placeholder="message", required, type="text" value='123')
                     button Student Send        
+
+        button(onclick='sendMessageAll("전체 메세지")') Send Message     
+        button(onclick='sendMessage("개별 메세지")') Send Message2   
         script(src="/socket.io/socket.io.js") 
         script(src="/public/js/app.js") 
