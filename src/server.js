@@ -1,9 +1,11 @@
 import http from "http";
 import SocketIO from "socket.io";
 import express from "express";
+import cors from "cors";
 
 const app = express();
 
+app.use(cors());
 app.set("view engine", "pug");
 app.set("views", __dirname + "/views");
 app.use("/public", express.static(__dirname + "/public"));
@@ -11,7 +13,11 @@ app.get("/", (_, res) => res.render("home"));
 app.get("/*", (_, res) => res.redirect("/"));
 
 const httpServer = http.createServer(app);
-const io = SocketIO(httpServer);
+const io = SocketIO(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
 
 // global values
 const MAXIMUM = process.env.SOCKET_ROOM_MAXIMUM || 30;
@@ -58,7 +64,7 @@ io.on("connection", (socket) => {
     // console.log("socket on offer", data.sdp);
     const { sdp, offerSendID, offerSendUserId, offerUserType, offerReceiveID } =
       data;
-
+    console.log("offer", data);
     socket
       .to(offerReceiveID)
       .emit("getOffer", { sdp, offerSendID, offerSendUserId, offerUserType });
@@ -66,6 +72,7 @@ io.on("connection", (socket) => {
 
   socket.on("answer", (data) => {
     // console.log("socket on answer", data.sdp);
+    console.log("answer", data);
     const { sdp, answerSendID, answerSendUserId, answerReceiveID } = data;
     socket
       .to(answerReceiveID)
