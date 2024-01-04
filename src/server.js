@@ -28,31 +28,31 @@ io.on("connection", (socket) => {
   socket.on("join_room", (data) => {
     console.log("join_room", data);
 
-    if (users[data.room]) {
-      const length = users[data.room].length;
+    if (users[data.roomName]) {
+      const length = users[data.roomName].length;
 
       if (length === MAXIMUM) {
         socket.to(socket.id).emit("room_full");
         return;
       }
 
-      users[data.room].push({
+      users[data.roomName].push({
         id: socket.id,
         userId: data.userId,
         userType: data.userType,
       });
     } else {
-      users[data.room] = [
+      users[data.roomName] = [
         { id: socket.id, userId: data.userId, userType: data.userType },
       ];
     }
 
-    socketToRoom[socket.id] = data.room;
+    socketToRoom[socket.id] = data.roomName;
 
-    socket.join(data.room);
+    socket.join(data.roomName);
     console.log(`[${socketToRoom[socket.id]}]: ${socket.id} enter`);
 
-    let usersInThisRoom = users[data.room].filter(
+    let usersInThisRoom = users[data.roomName].filter(
       (user) => user.id !== socket.id
     );
 
@@ -61,18 +61,16 @@ io.on("connection", (socket) => {
   });
 
   socket.on("offer", (data) => {
-    // console.log("socket on offer", data.sdp);
+    // console.log("offer", data);
     const { sdp, offerSendID, offerSendUserId, offerUserType, offerReceiveID } =
       data;
-    console.log("offer", data);
     socket
       .to(offerReceiveID)
       .emit("getOffer", { sdp, offerSendID, offerSendUserId, offerUserType });
   });
 
   socket.on("answer", (data) => {
-    // console.log("socket on answer", data.sdp);
-    console.log("answer", data);
+    // console.log("answer", data);
     const { sdp, answerSendID, answerSendUserId, answerReceiveID } = data;
     socket
       .to(answerReceiveID)
@@ -97,6 +95,20 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("reconnect", (data) => {
+    console.log("reconnect", data);
+    const { roomName, userId, userType } = data;
+    socket.join(roomName);
+    console.log(`[${socketToRoom[socket.id]}]: ${socket.id} enter`);
+
+    if (users[roomName]) {
+      users[roomName].push({ id: socket.id, userId, userType });
+    }
+
+    console.log(users[roomName]);
+    io.sockets.to(socket.id).emit("all_users", users[roomName]);
+  });
+
   socket.on("disconnect", (reason) => {
     console.log("disconnect", reason);
     console.log(`[${socketToRoom[socket.id]}]: ${socket.id} exit`);
@@ -118,7 +130,7 @@ io.on("connection", (socket) => {
     console.log("remain users", users);
   });
 
-  // 해야할 듯?
+  // ???
   socket.on("clear", () => {
     console.log("clear", socket.id);
     const roomID = socketToRoom[socket.id];
