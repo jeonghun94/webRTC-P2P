@@ -25,8 +25,8 @@ const users = {};
 const socketToRoom = {};
 
 io.on("connection", (socket) => {
-  socket.on("join_room", (data) => {
-    console.log("join_room", data);
+  socket.on("joinRoom", (data) => {
+    console.log("joinRoom", data);
 
     if (users[data.roomName]) {
       const length = users[data.roomName].length;
@@ -42,9 +42,18 @@ io.on("connection", (socket) => {
         userType: data.userType,
       });
     } else {
-      users[data.roomName] = [
-        { id: socket.id, userId: data.userId, userType: data.userType },
-      ];
+      if (data.userType === "teacher") {
+        users[data.roomName] = [
+          { id: socket.id, userId: data.userId, userType: data.userType },
+        ];
+      } else {
+        // 방이 없는데 학생이 들어오면 방이 없다고 알려주기
+        console.log("roomNotExist");
+        io.sockets
+          .to(socket.id)
+          .emit("roomNotExist", { roomName: data.roomName });
+        return;
+      }
     }
 
     socketToRoom[socket.id] = data.roomName;
@@ -57,7 +66,7 @@ io.on("connection", (socket) => {
     );
 
     console.log("usersInThisRoom", usersInThisRoom);
-    io.sockets.to(socket.id).emit("all_users", usersInThisRoom);
+    io.sockets.to(socket.id).emit("allUsers", usersInThisRoom);
   });
 
   socket.on("offer", (data) => {
@@ -106,7 +115,7 @@ io.on("connection", (socket) => {
     }
 
     console.log(users[roomName]);
-    io.sockets.to(socket.id).emit("all_users", users[roomName]);
+    io.sockets.to(socket.id).emit("allUsers", users[roomName]);
   });
 
   socket.on("disconnect", (reason) => {
