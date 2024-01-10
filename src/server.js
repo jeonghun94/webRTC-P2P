@@ -133,10 +133,8 @@ io.on("connection", (socket) => {
       }
     }
 
-    console.log("users", users);
-
-    socket.to(roomID).emit("user_exit", { id: socket.id });
     console.log("remain users", users);
+    socket.to(roomID).emit("userExit", { id: socket.id });
   });
 
   // ???
